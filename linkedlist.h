@@ -15,3 +15,5 @@ void list_remove(list *l, const char* key);
 int list_size(list *l);
 
 int list_find(list *l, const char* x);
+
+void list_print(link *l);
