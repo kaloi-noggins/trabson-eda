@@ -45,20 +45,17 @@ struct bucket
 struct hashmap
 {
   int capacity;
-  bucket *buckets[];
+  list **buckets;
 };
 
 hashmap *hashmap_create(int capacity)
 {
-  if (capacity < 1)
-  {
-    return NULL;
-  }
+  if (capacity < 1) return NULL;
 
   hashmap *map = malloc(sizeof(hashmap));
 
   map->capacity = capacity;
-  *map->buckets = malloc(sizeof(bucket) * capacity);
+  map->buckets = malloc(sizeof(list*) * capacity);
 
   return map;
 }
@@ -71,29 +68,66 @@ void hashmap_set(hashmap *map, const char *key, int value)
 
   if (map->buckets[index] == NULL)
   {
-    map->buckets[index] = malloc(sizeof(bucket));
-    map->buckets[index]->hashlist = list_create();
+    map->buckets[index] = list_create();
   }
-  list_push_back(map->buckets[index]->hashlist, key, value);
+  list_push_back(map->buckets[index], key, value);
 
-  printf("size: %d\n", list_size(map->buckets[index]->hashlist));
+  printf("size: %d\n", list_size(map->buckets[index]));
 }
 
-void hashmap_get(hashmap *map, const char *key)
+int hashmap_get(hashmap *map, const char *key)
 {
+	int index = elf_hash(key) % map->capacity;
+
+	if (map->buckets[index])
+	{
+		return list_find(map->buckets[index], key); 
+	}
+	return 0;
+	
 }
 
 bool hashmap_has(hashmap *map, const char *key)
 {
+	int index = elf_hash(key) % map->capacity;
+
+	if (map->buckets[index])
+	{
+		return list_find(map->buckets[index], key)?true:false; 
+	}
+	return false;
+
 }
 
 void hashmap_remove(hashmap *map, const char *key)
 {
+	int index = elf_hash(key) % map->capacity;
+	if(map->buckets[index]) list_remove(map->buckets[index],key);
 }
 
 int hashmap_size(hashmap *map)
 {
+	
+	int count = 0;
+	for (int i = 0; i < map->capacity; i++)
+	{
+		if (map->buckets[i])
+		{
+			count += list_size(map->buckets[i]);
+		}
+	}
+	return count;
+
 }
 void hashmap_delete(hashmap *map)
 {
+	for (int i = 0; i < map->capacity; i++)
+	{
+		if (map->buckets[i])
+		{
+			list_delete(map->buckets[i]);
+		}
+	}
+	free(map->buckets);
+	free(map);
 }

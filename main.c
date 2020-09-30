@@ -2,32 +2,28 @@
 #include <stdio.h>
 #include "hashmap.h"
 
-int main()
-{
-  // Algumas strings para testarmos...
-  const char *vector[] = {
-      "lorem",
-      "ipsum",
-      "dolor",
-      "sit",
-      "amet"};
+int main(){
+  hashmap *map = hashmap_create(512);
 
-  // Calcula quantidade de strings acima...
-  const int length = sizeof vector / sizeof *vector;
+      hashmap_set(map, "lorem", 1);
+      hashmap_set(map, "ipsum", 2);
+      hashmap_set(map, "dolor", 3);
+      hashmap_set(map, "sit", 4);
+      hashmap_set(map, "amet", 5);
 
-  // Por exemplo, se tivermos 512 buckets disponíveis...
-  const int capacity = 512;
+      //printf("map['%s'] = %i\n", "lorem", hashmap_get(map, "lorem"));
+      //printf("map['%s'] = %i\n", "ipsum", hashmap_get(map, "ipsum"));
+      printf("map['%s'] = %i\n", "amet", hashmap_get(map, "amet"));
 
-  hashmap *map = hashmap_create(capacity);
+      //printf("has('%s') = %i\n", "amet", hashmap_has(map, "amet"));
+      //printf("has('%s') = %i\n", "pedro", hashmap_has(map, "pedro"));
 
-  for (size_t i = 0; i < length; i++)
-  {
-    const char *s = vector[i];
-    int index = elf_hash(s) % capacity;
-    //printf("%10s: %d\n", s, index);
+      //printf("size: %i\n", hashmap_size(map));
 
-    hashmap_set(map, s, i);
-  }
+      //hashmap_remove(map, "lorem");
+      //printf("size: %i\n", hashmap_size(map));
 
-  return EXIT_SUCCESS;
+      //hashmap_delete(map);
+
+      return EXIT_SUCCESS;
 }

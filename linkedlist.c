@@ -57,51 +57,54 @@ void list_push_back(list *l, const char *key, int value)
   current_link->next = new_link;
 }
 
-int list_pop_back(list *l)
-{
-  link *current_link = l->head;
-
-  while (current_link->next != NULL)
-  {
-    if (current_link->next == NULL)
-    {
-      break;
-    }
-
-    current_link = current_link->next;
-  }
-
-  return current_link->value;
-}
-
 int list_size(list *l)
 {
-  link *current_link = l->head;
-  int size = 0;
+   if(l->head==NULL) return 0;
+   link *current_link = l->head;
+   int size = 0;
 
-  while (current_link->next != NULL)
-  {
-    current_link = current_link->next;
-    size++;
-  }
+   while (current_link->next)
+   {
+      current_link = current_link->next;
+      size++;
+   }
 
-  return size;
+   return size;
 }
 
 int list_find(list *l, const char *x)
 {
-  //printf("%s", x);
-  link *current_link = l->head;
+   if(l->head==NULL)return 0;
+   link *current_link = l->head;
 
-  while (current_link->next != NULL)
-  {
-    //printf("%s", l->head->key);
-    if (strcmp(current_link->key, x) == 0)
-    {
-      return 1;
+   while (current_link->next != NULL)
+   {
+      int cmp = strcmp(current_link->key, x);
+      if (cmp == 0)
+      {
+         return current_link->value;
+      }
+      current_link = current_link->next;
+   }
+
+   return 0;
+}
+
+void list_remove(list *l, const char* key)
+{
+  if( l->head->key == key ) {
+    link *obj = l->head;
+    l->head = obj->next;
+    free(obj);
+  }
+  else {
+    for(link *i=l->head;i!=NULL; i=i->next){
+      if (i->next && i->next->key==key)  {
+         link *deletedObj = i->next;
+         i->next = deletedObj -> next;
+         free(deletedObj);
+      }
     }
-    current_link = current_link->next;
   }
 
-  return 0;
 }
