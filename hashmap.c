@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "hashmap.h"
-#include "linkedlist.h"
+#include "avltree.h"
 
 /** 
  * Função padronizada para calcular o hash de uma string.
@@ -25,27 +25,15 @@ unsigned long elf_hash(const char *s)
   return h;
 }
 
-typedef struct link
-{
-  const char *key;
-  int value;
-  struct link *next;
-} link;
-
-typedef struct list
-{
-  link *head;
-} list;
-
 struct bucket
 {
-  list *hashlist;
+  avltree *hashtree;
 };
 
 struct hashmap
 {
   int capacity;
-  list **buckets;
+  avltree **buckets;
 };
 
 hashmap *hashmap_create(int capacity)
@@ -55,7 +43,7 @@ hashmap *hashmap_create(int capacity)
   hashmap *map = malloc(sizeof(hashmap));
 
   map->capacity = capacity;
-  map->buckets = malloc(sizeof(list*) * capacity);
+  map->buckets = malloc(sizeof(avltree*) * capacity);
 
   return map;
 }
@@ -68,11 +56,11 @@ void hashmap_set(hashmap *map, const char *key, int value)
 
   if (map->buckets[index] == NULL)
   {
-    map->buckets[index] = list_create();
+    map->buckets[index] = avltree_create();
   }
-  list_push_back(map->buckets[index], key, value);
+  avltree_insert(map->buckets[index], key, value);
 
-  printf("size: %d\n", list_size(map->buckets[index]));
+  printf("size: %d\n", avltree_size(map->buckets[index]));
 }
 
 int hashmap_get(hashmap *map, const char *key)
@@ -81,7 +69,7 @@ int hashmap_get(hashmap *map, const char *key)
 
 	if (map->buckets[index])
 	{
-		return list_find(map->buckets[index], key); 
+		return avltree_lookup(map->buckets[index], key); 
 	}
 	return 0;
 	
@@ -93,7 +81,7 @@ bool hashmap_has(hashmap *map, const char *key)
 
 	if (map->buckets[index])
 	{
-		return list_find(map->buckets[index], key)?true:false; 
+		return avltree_lookup(map->buckets[index], key)?true:false; 
 	}
 	return false;
 
@@ -102,7 +90,7 @@ bool hashmap_has(hashmap *map, const char *key)
 void hashmap_remove(hashmap *map, const char *key)
 {
 	int index = elf_hash(key) % map->capacity;
-	if(map->buckets[index]) list_remove(map->buckets[index],key);
+	if(map->buckets[index]) avltree_remove(map->buckets[index],key);
 }
 
 int hashmap_size(hashmap *map)
@@ -113,7 +101,7 @@ int hashmap_size(hashmap *map)
 	{
 		if (map->buckets[i])
 		{
-			count += list_size(map->buckets[i]);
+			count += avltree_size(map->buckets[i]);
 		}
 	}
 	return count;
@@ -125,7 +113,7 @@ void hashmap_delete(hashmap *map)
 	{
 		if (map->buckets[i])
 		{
-			list_delete(map->buckets[i]);
+			avltree_delete(map->buckets[i]);
 		}
 	}
 	free(map->buckets);
